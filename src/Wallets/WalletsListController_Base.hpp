@@ -1,8 +1,8 @@
 //
 //  WalletsListController_Base.hpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -42,7 +42,7 @@
 #include "../Settings/SettingsProviders.hpp"
 #include "../Lists/PersistedObjectListController.hpp"
 #include "./Wallet.hpp"
-#include "../APIClient/HostedMonero.hpp"
+#include "../APIClient/HostedCoinevo.hpp"
 #include "cryptonote_config.h"
 #include "../UserIdle/UserIdle.hpp"
 //
@@ -89,7 +89,7 @@ namespace Wallets
 		}
 		//
 		// Dependencies
-		std::shared_ptr<HostedMonero::APIClient> apiClient;
+		std::shared_ptr<HostedCoinevo::APIClient> apiClient;
 		std::shared_ptr<UserIdle::Controller> userIdleController;
 		std::shared_ptr<Currencies::ConversionRatesController> ccyConversionRatesController;
 		//
@@ -188,7 +188,7 @@ namespace Wallets
 		//
 		// Properties
 		const cryptonote::network_type _nettype;
-		boost::signals2::connection connection__HostedMonero_initializedWithNewServerURL;
+		boost::signals2::connection connection__HostedCoinevo_initializedWithNewServerURL;
 		std::unordered_map<string, std::shared_ptr<Wallets::Object>> __retainedWalletsWaitingToLogIn_byInstanceId; // if the wallet goes out of scope, the network request coming back won't have a _fn to call
 		//
 		// Lifecycle
@@ -198,7 +198,7 @@ namespace Wallets
 		// Imperatives
 		//
 		// Delegation
-		void HostedMonero_initializedWithNewServerURL();
+		void HostedCoinevo_initializedWithNewServerURL();
 	};
 }
 

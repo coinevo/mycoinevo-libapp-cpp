@@ -1,8 +1,8 @@
 //
 //  SendFundsFormSubmissionController.hpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -40,8 +40,8 @@
 #include <boost/optional/optional.hpp>
 #include <boost/locale.hpp>
 #include "cryptonote_config.h"
-#include "monero_send_routine.hpp"
-#include "monero_fork_rules.hpp"
+#include "coinevo_send_routine.hpp"
+#include "coinevo_fork_rules.hpp"
 
 namespace SendFunds
 {
@@ -49,8 +49,8 @@ namespace SendFunds
 	using namespace boost;
 	using namespace boost::locale;
 	using namespace cryptonote;
-	using namespace monero_send_routine;
-	using namespace monero_transfer_utils;
+	using namespace coinevo_send_routine;
+	using namespace coinevo_transfer_utils;
 	//
 	// Accessory Types
 	enum ProcessStep
@@ -102,7 +102,7 @@ namespace SendFunds
 		uint64_t final_total_wo_fee;
 		uint64_t total_sent; // final_total_wo_fee + final_fee
 		size_t mixin;
-		bool isXMRAddressIntegrated; // regarding sentTo_address
+		bool isEVOAddressIntegrated; // regarding sentTo_address
 		optional<string> final_payment_id; // will be filled if a payment id was passed in or an integrated address was used
 		optional<string> integratedAddressPIDForDisplay;
 		string signed_serialized_tx_string;
@@ -127,7 +127,7 @@ namespace SendFunds
 		bool hasPickedAContact;
 		optional<string> contact_payment_id;
 		optional<bool> contact_hasOpenAliasAddress;
-		optional<string> cached_OAResolved_address; // this may be an XMR address or a BTC address or … etc
+		optional<string> cached_OAResolved_address; // this may be an EVO address or a BTC address or … etc
 		optional<string> contact_address; // instead of the OAResolved_address
 		//
 		network_type nettype;
@@ -204,13 +204,13 @@ namespace SendFunds
 		uint64_t sending_amount;
 		string to_address_string;
 		optional<string> payment_id_string;
-		bool isXMRAddressIntegrated;
+		bool isEVOAddressIntegrated;
 		optional<string> integratedAddressPIDForDisplay;
 		// - from cb_i
 		vector<SpendableOutput> unspent_outs;
 		uint64_t fee_per_b;
 		uint64_t fee_mask;
-		monero_fork_rules::use_fork_rules_fn_type use_fork_rules;
+		coinevo_fork_rules::use_fork_rules_fn_type use_fork_rules;
 		// - re-entry params
 		optional<uint64_t> passedIn_attemptAt_fee;
 		size_t constructionAttempt;

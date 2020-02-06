@@ -1,8 +1,8 @@
 //
-//  HostedMonero.cpp
-//  MyMonero
+//  HostedCoinevo.cpp
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -31,8 +31,8 @@
 //  THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //
-#include "HostedMonero.hpp"
-using namespace HostedMonero;
+#include "HostedCoinevo.hpp"
+using namespace HostedCoinevo;
 //
 #include "rapidjson_defines.hpp" // must be included before rapidjson include
 #include "rapidjson/document.h"
@@ -134,16 +134,16 @@ void APIClient::stopObserving()
 }
 //
 // Accessors
-static string mymonero_apiAddress_authority = "api.mymonero.com:8443";
+static string mycoinevo_apiAddress_authority = "api.coinevo.tech";
 string APIClient::final_apiAddress_authority()
 { // authority means [subdomain.]host.…[:…]
 	assert(settingsController->hasBooted());
 	optional<string> settings_authorityValue = settingsController->specificAPIAddressURLAuthority();
 	if (settings_authorityValue == none) {
-		return mymonero_apiAddress_authority;
+		return mycoinevo_apiAddress_authority;
 	}
 	if (settings_authorityValue->empty()) { // NOTE: This should not technically be here. See SettingsController's set(valuesByDictKey:)'s failed attempt at nil detection in normalizing "" to nil
-		return mymonero_apiAddress_authority;
+		return mycoinevo_apiAddress_authority;
 	}
 	assert(settings_authorityValue->empty() == false);
 	//
@@ -159,7 +159,7 @@ std::shared_ptr<HTTPRequests::Handle> APIClient::logIn(
 	bool generated_locally,
 	std::function<void(
 		optional<string> err_str,
-		optional<HostedMonero::ParsedResult_Login> result
+		optional<HostedCoinevo::ParsedResult_Login> result
 	)> fn
 ) {
 	auto params = new_parameters_forWalletRequest(address, sec_view_key);
@@ -198,7 +198,7 @@ std::shared_ptr<HTTPRequests::Handle> APIClient::addressInfo(
 	const string &sec_spend_key,
 	std::function<void(
 		optional<string> err_str,
-		optional<HostedMonero::ParsedResult_AddressInfo> result
+		optional<HostedCoinevo::ParsedResult_AddressInfo> result
 	)> fn
 ) {
 	auto params = new_parameters_forWalletRequest(address, sec_view_key);
@@ -242,7 +242,7 @@ std::shared_ptr<HTTPRequests::Handle> APIClient::addressTransactions(
 	const string &sec_spend_key,
 	std::function<void(
 		optional<string> err_str,
-		optional<HostedMonero::ParsedResult_AddressTransactions> result
+		optional<HostedCoinevo::ParsedResult_AddressTransactions> result
 	)> fn
 ) {
 	auto params = new_parameters_forWalletRequest(address, sec_view_key);
@@ -285,7 +285,7 @@ std::shared_ptr<HTTPRequests::Handle> APIClient::importRequestInfo(
 	const string &sec_view_key,
 	std::function<void(
 		optional<string> err_str,
-		optional<HostedMonero::ParsedResult_ImportRequestInfo> result
+		optional<HostedCoinevo::ParsedResult_ImportRequestInfo> result
 	)> fn
 ) {
 	auto params = new_parameters_forWalletRequest(address, sec_view_key);
@@ -432,14 +432,14 @@ std::shared_ptr<HTTPRequests::Handle> APIClient::submitTx(
 #if DEBUG
 	#if MOCK_SUCCESSOFTXSUBMISSION
 	
-	MWARNING("HostedMonero: Merely returning mocked success response instead of actually submitting transaction to the server.");
+	MWARNING("HostedCoinevo: Merely returning mocked success response instead of actually submitting transaction to the server.");
 	fn(none, nullptr);
 	return nullptr;
 	
 	#endif
 #endif
 	//
-	MDEBUG("HostedMonero: Submitting transaction…");
+	MDEBUG("HostedCoinevo: Submitting transaction…");
 	std::shared_ptr<APIClient> shared_this = shared_from_this();
 	std::weak_ptr<APIClient> weak_this = shared_this;
 	return requestFactory->new_request(

@@ -1,8 +1,8 @@
 //
 //  OpenAlias.hpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -50,7 +50,7 @@ namespace OpenAlias
 	static inline bool looksLikeOpenAliasAndNotCryptoCurrencyAddress(const string &address)
 	{
 		static const string periodString = string(".");
-		if (address.find(periodString) != std::string::npos) { // assumed to be an OA address as XMR addresses do not have periods, and OA addrs must
+		if (address.find(periodString) != std::string::npos) { // assumed to be an OA address as EVO addresses do not have periods, and OA addrs must
 			return true;
 		}
 		return false;

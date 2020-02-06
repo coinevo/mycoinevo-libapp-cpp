@@ -1,4 +1,4 @@
-# The MyMonero App Library
+# The MyCoinevo App Library
 
 ### Info
 
@@ -13,12 +13,12 @@
 
 See `LICENSE.txt` for license.
 
-All source code copyright © 2014-2019 by MyMonero. All rights reserved.
+All source code copyright © 2014-2019 by MyCoinevo. All rights reserved.
 
 
 ## What's in This Repo?
 
-This repository holds the C++ source code for the MyMonero business logic.
+This repository holds the C++ source code for the MyCoinevo business logic.
 
 
 ## Installation

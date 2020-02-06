@@ -1,8 +1,8 @@
 //
 //  WalletsListController.Full.hpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //

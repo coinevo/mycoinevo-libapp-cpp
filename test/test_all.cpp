@@ -1,8 +1,8 @@
 //
 //  test_all.cpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE(sendFunds_submission_manualAddrPID, *utf::depends_on("mocke
 	using namespace std;
 	using namespace boost;
 	using namespace SendFunds;
-	using namespace monero_send_routine;
+	using namespace coinevo_send_routine;
 	using namespace serial_bridge_utils;
 	//
 	Parameters parameters{
@@ -1630,22 +1630,22 @@ BOOST_AUTO_TEST_CASE(currencies__conversions, *utf::depends_on("userIdle_control
 	//
 	double usdRate = 126.66;
 	Currencies::Currency toCcy = Currencies::Currency::USD;
-	std::unordered_map<Currencies::Currency, double> xmrToCcyRatesByCcy({
+	std::unordered_map<Currencies::Currency, double> evoToCcyRatesByCcy({
 		{ toCcy, usdRate }
 	});
-	controller->set_xmrToCcyRatesByCcy(xmrToCcyRatesByCcy);
+	controller->set_evoToCcyRatesByCcy(evoToCcyRatesByCcy);
 	//
 	BOOST_REQUIRE_MESSAGE(didSeeUpdate, "Expected to have seen rates update by now");
-	optional<Currencies::CcyConversion_Rate> rateBack = controller->rateFromXMR_orNoneIfNotReady(Currencies::Currency::USD);
+	optional<Currencies::CcyConversion_Rate> rateBack = controller->rateFromEVO_orNoneIfNotReady(Currencies::Currency::USD);
 	BOOST_REQUIRE_MESSAGE(rateBack != none && *rateBack == usdRate, "Expected to have rate back from controller.");
 	//
-	uint64_t xmrAmount = 2618000000;
-	double xmrAmountDouble = Currencies::doubleFrom(xmrAmount);
-	double expected_xmrAmountDouble = 0.002618;
-	BOOST_REQUIRE_MESSAGE(xmrAmountDouble == expected_xmrAmountDouble, "Expected xmrAmountDouble of " << xmrAmountDouble << " == Double(xmrAmount)");
+	uint64_t evoAmount = 2618000000;
+	double evoAmountDouble = Currencies::doubleFrom(evoAmount);
+	double expected_evoAmountDouble = 0.002618;
+	BOOST_REQUIRE_MESSAGE(evoAmountDouble == expected_evoAmountDouble, "Expected evoAmountDouble of " << evoAmountDouble << " == Double(evoAmount)");
 	//
 	optional<double> inCurrency_amountDouble = Currencies::displayUnitsRounded_amountInCurrency(
-		xmrAmount,
+		evoAmount,
 		toCcy,
 		*controller
 	);
@@ -1663,36 +1663,36 @@ BOOST_AUTO_TEST_CASE(currencies__conversions, *utf::depends_on("userIdle_control
 		"Expected inCurrency_amountFormattedString of " << inCurrency_amountFormattedString << " to equal " << expected_inCurrency_amountFormattedString
 	);
 	//
-	optional<double> backInMonero_rounded_amountDouble = Currencies::rounded_ccyConversionRateCalculated_moneroAmountDouble(
+	optional<double> backInCoinevo_rounded_amountDouble = Currencies::rounded_ccyConversionRateCalculated_coinevoAmountDouble(
 		*inCurrency_amountDouble,
 		Currencies::Currency::USD,
 		*controller
 	);
-	double roundingMultiplier = (double)pow(10, Currencies::ccyConversionRateCalculated_moneroAmountDouble_roundingPlaces);
-	double expected_backInMonero_rounded_amountDouble = round(expected_xmrAmountDouble * roundingMultiplier) / roundingMultiplier;
-	BOOST_REQUIRE_MESSAGE(backInMonero_rounded_amountDouble == expected_backInMonero_rounded_amountDouble, "Expected backInMonero_rounded_amountDouble of " << backInMonero_rounded_amountDouble << " to equal " << expected_backInMonero_rounded_amountDouble);
+	double roundingMultiplier = (double)pow(10, Currencies::ccyConversionRateCalculated_coinevoAmountDouble_roundingPlaces);
+	double expected_backInCoinevo_rounded_amountDouble = round(expected_evoAmountDouble * roundingMultiplier) / roundingMultiplier;
+	BOOST_REQUIRE_MESSAGE(backInCoinevo_rounded_amountDouble == expected_backInCoinevo_rounded_amountDouble, "Expected backInCoinevo_rounded_amountDouble of " << backInCoinevo_rounded_amountDouble << " to equal " << expected_backInCoinevo_rounded_amountDouble);
 }
-BOOST_AUTO_TEST_CASE(moneroAmounts__verifyParsingAndFormatting, *utf::depends_on("currencies__conversions"))
+BOOST_AUTO_TEST_CASE(coinevoAmounts__verifyParsingAndFormatting, *utf::depends_on("currencies__conversions"))
 {
 	using namespace Currencies;
 	//
-	cout << "moneroAmounts__verifyParsingAndFormatting" << endl;
+	cout << "coinevoAmounts__verifyParsingAndFormatting" << endl;
 	//
-	double correct_xmrAmountDouble = -0.002618;
-	string correct_xmrAmountDoubleString = "-0.002618";
-	MoneroAmount correct_xmrAmount = MoneroAmount("-2618000000");
+	double correct_evoAmountDouble = -0.002618;
+	string correct_evoAmountDoubleString = "-0.002618";
+	CoinevoAmount correct_evoAmount = CoinevoAmount("-2618000000");
 
-	MoneroAmount parsed_xmrAmount = MoneroAmountFromDoubleString(correct_xmrAmountDoubleString);
-	BOOST_REQUIRE_MESSAGE(parsed_xmrAmount == correct_xmrAmount, "Expected parsed_xmrAmount of " << parsed_xmrAmount << " to equal correct_xmrAmount of " << correct_xmrAmount);
+	CoinevoAmount parsed_evoAmount = CoinevoAmountFromDoubleString(correct_evoAmountDoubleString);
+	BOOST_REQUIRE_MESSAGE(parsed_evoAmount == correct_evoAmount, "Expected parsed_evoAmount of " << parsed_evoAmount << " to equal correct_evoAmount of " << correct_evoAmount);
 	//
-	string formatted_xmrAmountDoubleString = DoubleFormattedString(correct_xmrAmount);
-	BOOST_REQUIRE_MESSAGE(formatted_xmrAmountDoubleString == correct_xmrAmountDoubleString, "Expected formatted_xmrAmountDoubleString of " << formatted_xmrAmountDoubleString << " to equal correct_xmrAmountDoubleString of " << correct_xmrAmountDoubleString);
+	string formatted_evoAmountDoubleString = DoubleFormattedString(correct_evoAmount);
+	BOOST_REQUIRE_MESSAGE(formatted_evoAmountDoubleString == correct_evoAmountDoubleString, "Expected formatted_evoAmountDoubleString of " << formatted_evoAmountDoubleString << " to equal correct_evoAmountDoubleString of " << correct_evoAmountDoubleString);
 	//
-	double converted_xmrAmountDouble = DoubleFromMoneroAmount(correct_xmrAmount);
-	BOOST_REQUIRE_MESSAGE(converted_xmrAmountDouble == correct_xmrAmountDouble, "Expected converted_xmrAmountDouble of " << converted_xmrAmountDouble << " to equal correct_xmrAmountDouble of " << correct_xmrAmountDouble);
+	double converted_evoAmountDouble = DoubleFromCoinevoAmount(correct_evoAmount);
+	BOOST_REQUIRE_MESSAGE(converted_evoAmountDouble == correct_evoAmountDouble, "Expected converted_evoAmountDouble of " << converted_evoAmountDouble << " to equal correct_evoAmountDouble of " << correct_evoAmountDouble);
 	//
-	MoneroAmount converted_xmrAmount = MoneroAmountFromDouble(correct_xmrAmountDouble);
-	BOOST_REQUIRE_MESSAGE(converted_xmrAmount == correct_xmrAmount, "Expected converted_xmrAmount of " << converted_xmrAmount << " to equal correct_xmrAmount of " << correct_xmrAmount);
+	CoinevoAmount converted_evoAmount = CoinevoAmountFromDouble(correct_evoAmountDouble);
+	BOOST_REQUIRE_MESSAGE(converted_evoAmount == correct_evoAmount, "Expected converted_evoAmount of " << converted_evoAmount << " to equal correct_evoAmount of " << correct_evoAmount);
 }
 //
 //
@@ -1812,7 +1812,7 @@ std::shared_ptr<MockedListController> new_mockedListController_withDeps_noSetup(
 	//
 	return listController;
 }
-BOOST_AUTO_TEST_CASE(listController_construction, *utf::depends_on("moneroAmounts__verifyParsingAndFormatting"))
+BOOST_AUTO_TEST_CASE(listController_construction, *utf::depends_on("coinevoAmounts__verifyParsingAndFormatting"))
 {
 	cout << "listController_construction" << endl;
 	using namespace App;

@@ -1,8 +1,8 @@
 //
 //  SettingsController.cpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -35,7 +35,7 @@
 #include <boost/variant.hpp>
 #include "../Persistence/PersistableObject.hpp"
 #include "misc_log_ex.h"
-#include "../mymonero-core-cpp/src/serial_bridge_utils.hpp"
+#include "../mycoinevo-core-cpp/src/serial_bridge_utils.hpp"
 using namespace std;
 using namespace boost;
 using namespace document_persister;

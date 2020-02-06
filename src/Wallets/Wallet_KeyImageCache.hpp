@@ -1,8 +1,8 @@
 //
 //  Wallet_HostPollingController.hpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -39,14 +39,14 @@
 #include <string>
 #include <sstream>
 #include <unordered_map>
-#include "monero_key_image_utils.hpp"
+#include "coinevo_key_image_utils.hpp"
 #include "string_tools.h"
 //
 namespace Wallets
 {
 	using namespace std;
 //	using namespace boost;
-	using namespace monero_key_image_utils;
+	using namespace coinevo_key_image_utils;
 	//
 	//
 	//

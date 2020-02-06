@@ -1,8 +1,8 @@
 //
-//  HostedMonero.hpp
-//  MyMonero
+//  HostedCoinevo.hpp
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -32,8 +32,8 @@
 //
 //
 //
-#ifndef HostedMonero_HPP_
-#define HostedMonero_HPP_
+#ifndef HostedCoinevo_HPP_
+#define HostedCoinevo_HPP_
 //
 #include <iostream> // TODO: this is to obtain stdlib.. what should be imported instead of this?
 #include <boost/signals2.hpp>
@@ -43,7 +43,7 @@
 #include "./parsing.hpp"
 #include "../Wallets/Wallet_KeyImageCache.hpp"
 //
-namespace HostedMonero
+namespace HostedCoinevo
 {
 	using namespace std;
 	//
@@ -73,7 +73,7 @@ namespace HostedMonero
 			bool generated_locally,
 			std::function<void(
 				optional<string> err_str,
-				optional<HostedMonero::ParsedResult_Login> result
+				optional<HostedCoinevo::ParsedResult_Login> result
 			)> fn
 		);
 		std::shared_ptr<HTTPRequests::Handle> addressInfo(
@@ -84,7 +84,7 @@ namespace HostedMonero
 			const string &sec_spend_key,
 			std::function<void(
 				optional<string> err_str,
-				optional<HostedMonero::ParsedResult_AddressInfo> result
+				optional<HostedCoinevo::ParsedResult_AddressInfo> result
 			)> fn
 		);
 		std::shared_ptr<HTTPRequests::Handle> addressTransactions(
@@ -95,7 +95,7 @@ namespace HostedMonero
 			const string &sec_spend_key,
 			std::function<void(
 				optional<string> err_str,
-				optional<HostedMonero::ParsedResult_AddressTransactions> result
+				optional<HostedCoinevo::ParsedResult_AddressTransactions> result
 			)> fn
 		);
 		std::shared_ptr<HTTPRequests::Handle> importRequestInfo(
@@ -103,7 +103,7 @@ namespace HostedMonero
 			const string &sec_view_key,
 			std::function<void(
 				optional<string> err_str,
-				optional<HostedMonero::ParsedResult_ImportRequestInfo> result
+				optional<HostedCoinevo::ParsedResult_ImportRequestInfo> result
 			)> fn
 		);
 		std::shared_ptr<HTTPRequests::Handle> unspentOuts(
@@ -145,4 +145,4 @@ namespace HostedMonero
    };
 }
 
-#endif /* HostedMonero_HPP_ */
+#endif /* HostedCoinevo_HPP_ */

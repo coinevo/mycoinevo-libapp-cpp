@@ -1,6 +1,6 @@
 //
 //  parsing.hpp
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -45,7 +45,7 @@
 #include "../Wallets/Wallet_KeyImageCache.hpp"
 
 
-namespace HostedMonero
+namespace HostedCoinevo
 {
 	using namespace std;
 	using namespace rapidjson;
@@ -158,14 +158,14 @@ namespace HostedMonero
 //	static inline std::vector<spent_output_description> newArrayFrom_spentOutputDescriptions(
 //		std::vector<ResponseJSON> api_json_dicts
 //	) {
-//		return dicts.map{ MoneroSpentOutputDescription.new(withAPIJSONDict: $0) }
+//		return dicts.map{ CoinevoSpentOutputDescription.new(withAPIJSONDict: $0) }
 //	}
-//	static func new(withAPIJSONDict dict: [String: Any]) -> MoneroSpentOutputDescription
+//	static func new(withAPIJSONDict dict: [String: Any]) -> CoinevoSpentOutputDescription
 //	{
-//		let instance = MoneroSpentOutputDescription(
-//			amount: MoneroAmount(dict["amount"] as! String)!,
-//			tx_pub_key: dict["tx_pub_key"] as! MoneroTransactionPubKey,
-//			key_image: dict["key_image"] as! MoneroKeyImage,
+//		let instance = CoinevoSpentOutputDescription(
+//			amount: CoinevoAmount(dict["amount"] as! String)!,
+//			tx_pub_key: dict["tx_pub_key"] as! CoinevoTransactionPubKey,
+//			key_image: dict["key_image"] as! CoinevoKeyImage,
 //			mixin: dict["mixin"] as! UInt,
 //			out_index: dict["out_index"] as! UInt64
 //		)
@@ -252,7 +252,7 @@ namespace HostedMonero
 		// Lifecycle - Deinit
 //		deinit
 //		{
-//			//		DDLog.TearingDown("MyMoneroCore", "Tearing down a \(self).")
+//			//		DDLog.TearingDown("MyCoinevoCore", "Tearing down a \(self).")
 //			//
 //			NotificationCenter.default.post(name: NotificationNames.willBeDeinitialized.notificationName, object: self)
 //		}
@@ -298,12 +298,12 @@ namespace HostedMonero
 //				//
 //				return date_fromNow_String
 //			}
-//			if (unlock_time < Double(MoneroConstants.maxBlockNumber)) { // then unlock time is block height
+//			if (unlock_time < Double(CoinevoConstants.maxBlockNumber)) { // then unlock time is block height
 //				let numBlocks = unlock_time - Double(blockchain_height)
 //				if (numBlocks <= 0) {
 //					return NSLocalizedString("Transaction is unlocked", comment: "")
 //				}
-//				let timeUntilUnlock_s = numBlocks * Double(MoneroConstants.avgBlockTime)
+//				let timeUntilUnlock_s = numBlocks * Double(CoinevoConstants.avgBlockTime)
 //				let unlockPrediction_Date = Date().addingTimeInterval(timeUntilUnlock_s)
 //				let unlockPrediction_fromNow_String = colloquiallyFormattedDate(unlockPrediction_Date)
 //				//
@@ -402,7 +402,7 @@ namespace HostedMonero
 			//
 			bool isConfirmed = HistoricalTxRecord::isConfirmed(height, wallet__blockchainHeight);
 			bool isUnlocked = HistoricalTxRecord::isUnlocked(unlock_time, wallet__blockchainHeight);
-			//		let lockedReason: String? = !isUnlocked ? MoneroHistoricalTransactionRecord.lockedReason(
+			//		let lockedReason: String? = !isUnlocked ? CoinevoHistoricalTransactionRecord.lockedReason(
 			//																								 givenTransactionUnlockTime: unlockTime,
 			//																								 andWalletBlockchainHeight: wallet__blockchainHeight
 			//																								 ) : nil
@@ -661,7 +661,7 @@ namespace HostedMonero
 		return os;
 	}
 }
-namespace HostedMonero
+namespace HostedCoinevo
 {
 	struct ParsedResult_Login
 	{
@@ -705,9 +705,9 @@ namespace HostedMonero
 		uint64_t transaction_height;
 		uint64_t blockchain_height;
 		//
-		std::vector<SpentOutputDescription> spentOutputs; // these have a different format than MoneroOutputDescriptions (whose type's name needs to be made more precise)
+		std::vector<SpentOutputDescription> spentOutputs; // these have a different format than CoinevoOutputDescriptions (whose type's name needs to be made more precise)
 		//
-		std::unordered_map<Currencies::Currency, double> xmrToCcyRatesByCcy;
+		std::unordered_map<Currencies::Currency, double> evoToCcyRatesByCcy;
 	};
 	static inline ParsedResult_AddressInfo new_ParsedResult_AddressInfo(
 		const HTTPRequests::ResponseJSON &res,
@@ -743,7 +743,7 @@ namespace HostedMonero
 					);
 					string spent_output__keyImage = string(spent_output["key_image"].GetString(), spent_output["key_image"].GetStringLength());
 					if (spent_output__keyImage != generated__keyImage) { // not spent
-						MDEBUG("HostedMonero: Output used as mixin \(spent_output__keyImage)/\(generated__keyImage))");
+						MDEBUG("HostedCoinevo: Output used as mixin \(spent_output__keyImage)/\(generated__keyImage))");
 						uint64_t spent_output__amount = stoull(spent_output["amount"].GetString());
 						total_sent -= spent_output__amount;
 					}
@@ -755,24 +755,24 @@ namespace HostedMonero
 			}
 		}
 		//
-		std::unordered_map<Currencies::Currency, double> final_xmrToCcyRatesByCcy;
+		std::unordered_map<Currencies::Currency, double> final_evoToCcyRatesByCcy;
 		Value::ConstMemberIterator rates__itr = res.FindMember("rates");
 		if (rates__itr != res.MemberEnd()) { // jic it's not there
 			for (auto& m : rates__itr->value.GetObject()) {
 				auto ccySymbol = string(m.name.GetString(), m.name.GetStringLength());
-				double xmrToCcyRate = m.value.GetDouble();
+				double evoToCcyRate = m.value.GetDouble();
 				Currencies::Currency ccy = Currencies::Currency::none; // initialized to zero value
 				try {
 					ccy = Currencies::CurrencyFrom(ccySymbol); // may throw - and will throw on 'BTC' in response
 				} catch (const std::exception& e) {
-					MWARNING("HostedMonero.APIClient: Unrecognized currency " << ccySymbol << " in rates matrix");
+					MWARNING("HostedCoinevo.APIClient: Unrecognized currency " << ccySymbol << " in rates matrix");
 					continue; // already logged
 				}
 				if (ccy == Currencies::Currency::none) { // we shouldn't actually see this - we're expecting it to throw .. so let's throw here
-					BOOST_THROW_EXCEPTION(logic_error("HostedMonero.APIClient: Unexpectedly unrecognized currency in rates matrix"));
+					BOOST_THROW_EXCEPTION(logic_error("HostedCoinevo.APIClient: Unexpectedly unrecognized currency in rates matrix"));
 					continue;
 				}
-				final_xmrToCcyRatesByCcy[ccy] = xmrToCcyRate;
+				final_evoToCcyRatesByCcy[ccy] = evoToCcyRate;
 			}
 		}
 		return ParsedResult_AddressInfo{
@@ -788,7 +788,7 @@ namespace HostedMonero
 			//
 			spentOutputs,
 			//
-			final_xmrToCcyRatesByCcy
+			final_evoToCcyRatesByCcy
 		};
 	}
 	//

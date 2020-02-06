@@ -1,8 +1,8 @@
 //
 //  AppServiceLocator.hpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -44,7 +44,7 @@
 #include "../Currencies/Currencies.hpp"
 #include "../Wallets/WalletsListController.Full.hpp" // FIXME: can we include _Base instead?
 #include "../APIClient/HTTPRequests_Interface.hpp"
-#include "../APIClient/HostedMonero.hpp"
+#include "../APIClient/HostedCoinevo.hpp"
 #include "cryptonote_config.h"
 //
 namespace App
@@ -85,7 +85,7 @@ namespace App
 				passwordController = std::make_shared<Passwords::Controller>();
 				ccyConversionRatesController = std::make_shared<Currencies::ConversionRatesController>();
 				walletsListController = std::make_shared<Wallets::ListController>(nettype);
-				apiClient = std::make_shared<HostedMonero::APIClient>();
+				apiClient = std::make_shared<HostedCoinevo::APIClient>();
 				//
 				passwordController->documentsPath = documentsPath;
 				passwordController->dispatch_ptr = dispatch_ptr;
@@ -160,7 +160,7 @@ namespace App
 			//
 			// Properties - Services: Built and retained dependencies
 			std::shared_ptr<Dispatch::Dispatch> dispatch_ptr;
-			std::shared_ptr<HostedMonero::APIClient> apiClient;
+			std::shared_ptr<HostedCoinevo::APIClient> apiClient;
 			std::shared_ptr<Passwords::Controller> passwordController;
 			std::shared_ptr<Settings::Controller> settingsController;
 			std::shared_ptr<UserIdle::Controller> userIdleController;

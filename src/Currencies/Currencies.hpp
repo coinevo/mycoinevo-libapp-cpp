@@ -1,8 +1,8 @@
 //
 //  Currencies.hpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -44,7 +44,7 @@
 #include "misc_log_ex.h"
 #include "cryptonote_format_utils.h"
 //
-namespace MoneroConstants
+namespace CoinevoConstants
 {
 	static size_t currency_unitPlaces = 12;
 }
@@ -56,14 +56,14 @@ namespace Currencies
 	typedef uint64_t TwelveDecimalMoneyAmount; // aka 12-decimal (-atomic-unit) money-amount
 	typedef uint64_t TwoDecimalMoneyAmount;
 	//
-	inline double doubleFrom(TwelveDecimalMoneyAmount moneroAmount)
+	inline double doubleFrom(TwelveDecimalMoneyAmount coinevoAmount)
 	{
-		return stod(cryptonote::print_money(moneroAmount));
+		return stod(cryptonote::print_money(coinevoAmount));
 	}
 	//
 	inline char money_decimal_punctuation_char()
 	{
-		return '.'; // explicitly no support for locale-specific formatting to avoid bad edge-cases and bugs.. sending XXX.0 XMR instead of 0.XXX XMR 
+		return '.'; // explicitly no support for locale-specific formatting to avoid bad edge-cases and bugs.. sending XXX.0 EVO instead of 0.XXX EVO 
 	}
 	class twodecimal_comma_moneypunct : public std::moneypunct<char>
 	{
@@ -95,21 +95,21 @@ namespace Currencies
 {
 	using namespace std;
 	//
-	struct MoneroAmount
+	struct CoinevoAmount
 	{
 		TwelveDecimalMoneyAmount _magnitude;
 		bool _is_negative;
 		//
-		MoneroAmount(const string &str)
+		CoinevoAmount(const string &str)
 		{
 			if (str.empty()) {
-				BOOST_THROW_EXCEPTION(logic_error("Invalid input to MoneroAmount"));
+				BOOST_THROW_EXCEPTION(logic_error("Invalid input to CoinevoAmount"));
 				return;
 			}
 			static size_t lengthOfNegChar = 1;
 			if (str.substr(0, lengthOfNegChar) == "-") {
 				if (str.size() == lengthOfNegChar) {
-					BOOST_THROW_EXCEPTION(logic_error("String with only '-' is invalid input to MoneroAmount"));
+					BOOST_THROW_EXCEPTION(logic_error("String with only '-' is invalid input to CoinevoAmount"));
 					return;
 				}
 				_is_negative = true;
@@ -121,25 +121,25 @@ namespace Currencies
 				iss >> _magnitude;
 			}
 		}
-		MoneroAmount(TwelveDecimalMoneyAmount magnitude, bool is_negative)
+		CoinevoAmount(TwelveDecimalMoneyAmount magnitude, bool is_negative)
 		{
 			_magnitude = magnitude;
 			_is_negative = is_negative;
 		}
 		//
-		MoneroAmount(const MoneroAmount &m2)
+		CoinevoAmount(const CoinevoAmount &m2)
 		{
 			_magnitude = m2._magnitude;
 			_is_negative = m2._is_negative;
 		}
-		MoneroAmount operator=(MoneroAmount m2)
+		CoinevoAmount operator=(CoinevoAmount m2)
 		{
 			_magnitude = m2._magnitude;
 			_is_negative = m2._is_negative;
 			//
 			return m2;
 		}
-		bool operator==(MoneroAmount m2)
+		bool operator==(CoinevoAmount m2)
 		{
 			if (m2._is_negative == _is_negative && m2._magnitude == _magnitude) {
 				return true;
@@ -149,23 +149,23 @@ namespace Currencies
 		}
 		// TODO: implement operator+ and operator- ....
 	};
-	static inline ostream &operator<<(ostream &out, const MoneroAmount &m)
+	static inline ostream &operator<<(ostream &out, const CoinevoAmount &m)
 	{
 		out << m._is_negative << m._magnitude; // opting for bigint representation here rather than BigDecimal
 		//
 		return out;
 	}
-	static inline MoneroAmount MoneroAmountFromDoubleString(const string &str)
+	static inline CoinevoAmount CoinevoAmountFromDoubleString(const string &str)
 	{
 		if (str.empty()) {
-			BOOST_THROW_EXCEPTION(logic_error("Invalid input to MoneroAmountFromDoubleString"));
+			BOOST_THROW_EXCEPTION(logic_error("Invalid input to CoinevoAmountFromDoubleString"));
 		}
 		bool is_negative = false;
 		static size_t lengthOfNegChar = 1;
 		string final_str;
 		if (str.substr(0, lengthOfNegChar) == "-") {
 			if (str.size() == lengthOfNegChar) {
-				BOOST_THROW_EXCEPTION(logic_error("String with only '-' is invalid input to MoneroAmountFromDoubleString"));
+				BOOST_THROW_EXCEPTION(logic_error("String with only '-' is invalid input to CoinevoAmountFromDoubleString"));
 			}
 			is_negative = true;
 			final_str = str.substr(lengthOfNegChar, str.size() - lengthOfNegChar);
@@ -175,12 +175,12 @@ namespace Currencies
 		TwelveDecimalMoneyAmount magnitude;
 		bool r = cryptonote::parse_amount(magnitude, final_str);
 		if (!r) {
-			BOOST_THROW_EXCEPTION(logic_error("Unable to parse input to MoneroAmountFromDoubleString"));
+			BOOST_THROW_EXCEPTION(logic_error("Unable to parse input to CoinevoAmountFromDoubleString"));
 		}
 		//
-		return MoneroAmount(magnitude, is_negative);
+		return CoinevoAmount(magnitude, is_negative);
 	}
-	static inline string DoubleFormattedString(const MoneroAmount &m)
+	static inline string DoubleFormattedString(const CoinevoAmount &m)
 	{
 		string m_str = cryptonote::print_money(m._magnitude); // as double string
 		m_str.erase(m_str.find_last_not_of('0') + 1, std::string::npos);
@@ -192,7 +192,7 @@ namespace Currencies
 		}
 		return m_str;
 	}
-	static inline double DoubleFromMoneroAmount(const MoneroAmount &m)
+	static inline double DoubleFromCoinevoAmount(const CoinevoAmount &m)
 	{
 		double abs_double = doubleFrom(m._magnitude);
 		if (m._is_negative) {
@@ -200,12 +200,12 @@ namespace Currencies
 		}
 		return abs_double;
 	}
-	static inline MoneroAmount MoneroAmountFromDouble(double d)
+	static inline CoinevoAmount CoinevoAmountFromDouble(double d)
 	{
 		stringstream ss;
 		ss << d;
 		//
-		return MoneroAmountFromDoubleString(ss.str());
+		return CoinevoAmountFromDoubleString(ss.str());
 	}
 }
 namespace Currencies
@@ -220,7 +220,7 @@ namespace Currencies
 	enum Currency
 	{
 		none,
-		XMR,
+		EVO,
 		USD,
 		AUD,
 		BRL,
@@ -247,8 +247,8 @@ namespace Currencies
 		switch (ccy) {
 			case Currency::none:
 				return "";
-			case XMR:
-				return "XMR";
+			case EVO:
+				return "EVO";
 			case USD:
 				return "USD";
 			case AUD:
@@ -301,8 +301,8 @@ namespace Currencies
 	{
 		if (symbol == "") {
 			return Currency::none;
-		} else if (symbol == CurrencySymbolFrom(XMR)) {
-			return XMR;
+		} else if (symbol == CurrencySymbolFrom(EVO)) {
+			return EVO;
 		} else if (symbol == CurrencySymbolFrom(USD)) {
 			return USD;
 		} else if (symbol == CurrencySymbolFrom(AUD)) {
@@ -349,8 +349,8 @@ namespace Currencies
 	}
 	inline size_t unitsForDisplay(Currency ccy)
 	{
-		if (ccy == Currency::XMR) {
-			return MoneroConstants::currency_unitPlaces;
+		if (ccy == Currency::EVO) {
+			return CoinevoConstants::currency_unitPlaces;
 		}
 		return 2;
 	}
@@ -376,21 +376,21 @@ namespace Currencies
 		// Accessors
 		bool isRateReady(Currency currency) const
 		{
-			if (currency == Currency::none || currency == Currency::XMR)
+			if (currency == Currency::none || currency == Currency::EVO)
 			{
 				BOOST_THROW_EXCEPTION(logic_error("Invalid 'currency' argument value"));
 			}
-			auto it = xmrToCurrencyRatesByCurrencyUID.find(CurrencyUIDFrom(currency));
+			auto it = evoToCurrencyRatesByCurrencyUID.find(CurrencyUIDFrom(currency));
 			//
-			return it != xmrToCurrencyRatesByCurrencyUID.end();
+			return it != evoToCurrencyRatesByCurrencyUID.end();
 		}
-		optional<CcyConversion_Rate> rateFromXMR_orNoneIfNotReady(Currency toCurrency) const
+		optional<CcyConversion_Rate> rateFromEVO_orNoneIfNotReady(Currency toCurrency) const
 		{
-			if (toCurrency == Currency::none || toCurrency == Currency::XMR) {
+			if (toCurrency == Currency::none || toCurrency == Currency::EVO) {
 				BOOST_THROW_EXCEPTION(logic_error("Invalid 'currency' argument value"));
 			}
-			auto it = xmrToCurrencyRatesByCurrencyUID.find(CurrencyUIDFrom(toCurrency));
-			if (it == xmrToCurrencyRatesByCurrencyUID.end()) {
+			auto it = evoToCurrencyRatesByCurrencyUID.find(CurrencyUIDFrom(toCurrency));
+			if (it == evoToCurrencyRatesByCurrencyUID.end()) {
 				return none;
 			}
 			return it->second;
@@ -398,29 +398,29 @@ namespace Currencies
 		//
 		// Imperatives
 		bool set(
-			CcyConversion_Rate XMRToCurrencyRate,
+			CcyConversion_Rate EVOToCurrencyRate,
 			Currency forCurrency,
 			bool isPartOfBatch = false
 		) {
 			bool doNotNotify = isPartOfBatch;
 			string ccyUID = CurrencyUIDFrom(forCurrency);
-			bool wasSetValueDifferent = XMRToCurrencyRate != xmrToCurrencyRatesByCurrencyUID[ccyUID];
-			xmrToCurrencyRatesByCurrencyUID[ccyUID] = XMRToCurrencyRate;
+			bool wasSetValueDifferent = EVOToCurrencyRate != evoToCurrencyRatesByCurrencyUID[ccyUID];
+			evoToCurrencyRatesByCurrencyUID[ccyUID] = EVOToCurrencyRate;
 			if (doNotNotify != true) {
-				_notifyOf_updateTo_XMRToCurrencyRate();
+				_notifyOf_updateTo_EVOToCurrencyRate();
 			}
 			return wasSetValueDifferent;
 		}
-		void ifBatched_notifyOf_set_XMRToCurrencyRate()
+		void ifBatched_notifyOf_set_EVOToCurrencyRate()
 		{
-			MDEBUG("CcyConversionRates: Received updates: $xmrToCurrencyRatesByCurrencyUID");
-			_notifyOf_updateTo_XMRToCurrencyRate();
+			MDEBUG("CcyConversionRates: Received updates: $evoToCurrencyRatesByCurrencyUID");
+			_notifyOf_updateTo_EVOToCurrencyRate();
 		}
-		void set_xmrToCcyRatesByCcy(std::unordered_map<Currency, double> xmrToCcyRatesByCcy)
+		void set_evoToCcyRatesByCcy(std::unordered_map<Currency, double> evoToCcyRatesByCcy)
 		{
 			bool wasAnyRateChanged = false;
-			std::unordered_map<Currency, double>::iterator it = xmrToCcyRatesByCcy.begin();
-			while (it != xmrToCcyRatesByCcy.end()) {
+			std::unordered_map<Currency, double>::iterator it = evoToCcyRatesByCcy.begin();
+			while (it != evoToCcyRatesByCcy.end()) {
 				Currency currency = it->first;
 				double rate = it->second;
 				bool wasSetValueDifferent = set(
@@ -434,16 +434,16 @@ namespace Currencies
 				it++;
 			}
 			if (wasAnyRateChanged) {
-				ifBatched_notifyOf_set_XMRToCurrencyRate();
+				ifBatched_notifyOf_set_EVOToCurrencyRate();
 			}
 		}
 	private:
 		//
 		// Properties
-		std::unordered_map<CurrencyUID, CcyConversion_Rate> xmrToCurrencyRatesByCurrencyUID;
+		std::unordered_map<CurrencyUID, CcyConversion_Rate> evoToCurrencyRatesByCurrencyUID;
 		//
 		// Imperatives
-		void _notifyOf_updateTo_XMRToCurrencyRate()
+		void _notifyOf_updateTo_EVOToCurrencyRate()
 		{
 			didUpdateAvailabilityOfRates_signal();
 		}
@@ -470,8 +470,8 @@ namespace Currencies
 		double final_amountDouble,
 		Currencies::Currency inCcy
 	) {
-		if (inCcy == Currencies::XMR) {
-			BOOST_THROW_EXCEPTION(logic_error("nonAtomicCurrency_localized_formattedString should not be called with ccy of XMR"));
+		if (inCcy == Currencies::EVO) {
+			BOOST_THROW_EXCEPTION(logic_error("nonAtomicCurrency_localized_formattedString should not be called with ccy of EVO"));
 			return "";
 		}
 		string decimalSeparator; decimalSeparator.push_back(money_decimal_punctuation_char());
@@ -522,7 +522,7 @@ namespace Currencies
 	//
 	//
 	inline optional<double> displayUnitsRounded_amountInCurrency( // NOTE: __DISPLAY_ units
-		TwelveDecimalMoneyAmount moneroAmount,
+		TwelveDecimalMoneyAmount coinevoAmount,
 		Currency inCcy,
 		const ConversionRatesController &controller
 	) {
@@ -530,23 +530,23 @@ namespace Currencies
 			BOOST_THROW_EXCEPTION(logic_error("Selected currency unexpectedly ::none"));
 			return none;
 		}
-		double moneroAmountDouble = doubleFrom(moneroAmount);
-		if (inCcy == Currencies::XMR) {
-			return moneroAmountDouble; // no conversion necessary
+		double coinevoAmountDouble = doubleFrom(coinevoAmount);
+		if (inCcy == Currencies::EVO) {
+			return coinevoAmountDouble; // no conversion necessary
 		}
-		optional<double> xmrToCurrencyRate = controller.rateFromXMR_orNoneIfNotReady(inCcy);
-		if (xmrToCurrencyRate == boost::none) {
+		optional<double> evoToCurrencyRate = controller.rateFromEVO_orNoneIfNotReady(inCcy);
+		if (evoToCurrencyRate == boost::none) {
 			return none; // ccyConversion rate unavailable - consumers will try again
 		}
-		double raw_ccyConversionRateApplied_amount = moneroAmountDouble * xmrToCurrencyRate.get();
+		double raw_ccyConversionRateApplied_amount = coinevoAmountDouble * evoToCurrencyRate.get();
 		double roundingMultiplier = pow((double)10, (double)unitsForDisplay(inCcy));
 		double truncated_amount = round(roundingMultiplier * raw_ccyConversionRateApplied_amount) / roundingMultiplier;
 		//
 		return truncated_amount;
 	}
 	//
-	static int ccyConversionRateCalculated_moneroAmountDouble_roundingPlaces = 4; // 4 rather than, say, 2, b/c it's relatively more unlikely that fiat amts will be over 10-100 xmr - and b/c some currencies require it for xmr value not to be 0 - and 5 places is a bit excessive
-	inline optional<double> rounded_ccyConversionRateCalculated_moneroAmountDouble(
+	static int ccyConversionRateCalculated_coinevoAmountDouble_roundingPlaces = 4; // 4 rather than, say, 2, b/c it's relatively more unlikely that fiat amts will be over 10-100 evo - and b/c some currencies require it for evo value not to be 0 - and 5 places is a bit excessive
+	inline optional<double> rounded_ccyConversionRateCalculated_coinevoAmountDouble(
 		double userInputAmountDouble,
 		Currency selectedCurrency,
 		const ConversionRatesController &controller
@@ -555,22 +555,22 @@ namespace Currencies
 			BOOST_THROW_EXCEPTION(logic_error("Selected currency unexpectedly none"));
 			return none;
 		}
-		optional<CcyConversion_Rate> xmrToCurrencyRate = controller.rateFromXMR_orNoneIfNotReady(selectedCurrency);
-		if (xmrToCurrencyRate == boost::none) {
+		optional<CcyConversion_Rate> evoToCurrencyRate = controller.rateFromEVO_orNoneIfNotReady(selectedCurrency);
+		if (evoToCurrencyRate == boost::none) {
 			return none; // ccyConversion rate unavailable - consumers will try again on 'didUpdateAvailabilityOfRates'
 		}
 		// conversion:
-		// currencyAmt = xmrAmt * xmrToCurrencyRate;
-		// xmrAmt = currencyAmt / xmrToCurrencyRate.
+		// currencyAmt = evoAmt * evoToCurrencyRate;
+		// evoAmt = currencyAmt / evoToCurrencyRate.
 		// I figure it's better to apply the rounding here rather than only at the display level so that what is actually sent corresponds to what the user saw, even if greater ccyConversion precision /could/ be accomplished..
-		double raw_ccyConversionRateApplied_amount = userInputAmountDouble * (1 / (*xmrToCurrencyRate));
-		double roundingMultiplier = (double)pow(10, ccyConversionRateCalculated_moneroAmountDouble_roundingPlaces);
+		double raw_ccyConversionRateApplied_amount = userInputAmountDouble * (1 / (*evoToCurrencyRate));
+		double roundingMultiplier = (double)pow(10, ccyConversionRateCalculated_coinevoAmountDouble_roundingPlaces);
 		double truncated_amount = (double)round(roundingMultiplier * raw_ccyConversionRateApplied_amount) / roundingMultiplier; // must be truncated for display purposes
 		//
 		return truncated_amount;
 	}
 //	inline func amountConverted_displayStringComponents(
-//														from amount: MoneroAmount,
+//														from amount: CoinevoAmount,
 //														ccy: CcyConversionRates.Currency,
 //														chopNPlaces: UInt = 0
 //														) -> (
@@ -578,23 +578,23 @@ namespace Currencies
 //															  final_ccy: CcyConversionRates.Currency
 //															  ) {
 //		var formattedAmount: String
-//		var final_input_amount: MoneroAmount!
+//		var final_input_amount: CoinevoAmount!
 //		if chopNPlaces != 0 {
-//			let power = MoneroAmount("10")!.power(Int(chopNPlaces)) // this *should* be ok for amount, even if it has no decimal places, because those places would be filled with 0s in such a number
+//			let power = CoinevoAmount("10")!.power(Int(chopNPlaces)) // this *should* be ok for amount, even if it has no decimal places, because those places would be filled with 0s in such a number
 //			final_input_amount = (amount / power) * power
 //		} else {
 //			final_input_amount = amount
 //		}
 //			var mutable_ccy = ccy
-//			if ccy == .XMR {
+//			if ccy == .EVO {
 //				formattedAmount = final_input_amount!.localized_formattedString
 //			} else {
-//				let convertedAmount = ccy.displayUnitsRounded_amountInCurrency(fromMoneroAmount: final_input_amount!)
+//				let convertedAmount = ccy.displayUnitsRounded_amountInCurrency(fromCoinevoAmount: final_input_amount!)
 //				if convertedAmount != nil {
-//					formattedAmount = MoneroAmount.shared_localized_twoDecimalPlaceDoubleFormatter().string(for: convertedAmount)!
+//					formattedAmount = CoinevoAmount.shared_localized_twoDecimalPlaceDoubleFormatter().string(for: convertedAmount)!
 //				} else {
 //					formattedAmount = final_input_amount!.localized_formattedString
-//					mutable_ccy = .XMR // display XMR until rate is ready? or maybe just show 'LOADING…'?
+//					mutable_ccy = .EVO // display EVO until rate is ready? or maybe just show 'LOADING…'?
 //				}
 //			}
 //			return (formattedAmount, mutable_ccy)

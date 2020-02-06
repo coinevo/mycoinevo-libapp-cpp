@@ -1,8 +1,8 @@
 //
 //  SettingsController.cpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -70,7 +70,7 @@ namespace Settings
 		//
 		__max = 8
 	};
-	static Currencies::CurrencySymbol default_displayCurrencySymbol = Currencies::CurrencySymbolFrom(Currencies::Currency::XMR);
+	static Currencies::CurrencySymbol default_displayCurrencySymbol = Currencies::CurrencySymbolFrom(Currencies::Currency::EVO);
 	static bool default_authentication__requireWhenSending = true;
 	static bool default_authentication__requireToShowWalletSecrets = true;
 	static bool default_authentication__tryBiometric = true;

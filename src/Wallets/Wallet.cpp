@@ -1,8 +1,8 @@
 //
 //  Wallet.cpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -34,7 +34,7 @@
 #include "Wallet.hpp"
 using namespace Wallets;
 #include "misc_log_ex.h"
-using namespace monero_wallet_utils;
+using namespace coinevo_wallet_utils;
 //
 // Accessory types
 struct OptlErrStrCBFunctor
@@ -47,11 +47,11 @@ struct OptlErrStrCBFunctor
 };
 struct LogInReqCBFunctor
 { // when you pass this functor to its destination, do a std::move of it to the destination
-	std::function<void(optional<string> err_str, optional<HostedMonero::ParsedResult_Login> result)> fn; // do a std::move to this property manually
+	std::function<void(optional<string> err_str, optional<HostedCoinevo::ParsedResult_Login> result)> fn; // do a std::move to this property manually
 	~LogInReqCBFunctor() {
 		cout << "LogInReqCBFunctor dtor" << endl;
 	}
-	void operator()(optional<string> err_str, optional<HostedMonero::ParsedResult_Login> result)
+	void operator()(optional<string> err_str, optional<HostedCoinevo::ParsedResult_Login> result)
 	{
 		if (err_str != none) {
 			fn(std::move(*err_str), none);
@@ -89,8 +89,8 @@ void Object::deBoot()
 //	optional<uint64_t> old__totalReceived = none;
 //	optional<uint64_t> old__totalSent = none;
 //	optional<uint64_t> old__lockedBalance = none;
-//	optional<std::vector<HostedMonero::SpentOutputDescription>> old__spentOutputs = none;
-//	optional<std::vector<HostedMonero::HistoricalTxRecord>> old__transactions = none;
+//	optional<std::vector<HostedCoinevo::SpentOutputDescription>> old__spentOutputs = none;
+//	optional<std::vector<HostedCoinevo::HistoricalTxRecord>> old__transactions = none;
 //	if (_totalReceived != none) {
 //		old__totalReceived = *_totalReceived;
 //	}
@@ -342,7 +342,7 @@ void Object::_boot_byLoggingIn(
 		cb_functor
 	] (
 		optional<string> login__err_str,
-		optional<HostedMonero::ParsedResult_Login> result
+		optional<HostedCoinevo::ParsedResult_Login> result
 	) {
 		if (auto inner_spt = weak_this.lock()) {
 			inner_spt->_isLoggingIn = false;
@@ -358,7 +358,7 @@ void Object::_boot_byLoggingIn(
 					inner_spt->_logIn_requestHandle = nullptr; // release
 					return;
 				} else {
-					// this allows us to continue with the above-set login info to call 'saveToDisk()' when this call to log in is coming from a wallet reboot. reason is that we expect all such wallets to be valid monero wallets if they are able to have been rebooted.
+					// this allows us to continue with the above-set login info to call 'saveToDisk()' when this call to log in is coming from a wallet reboot. reason is that we expect all such wallets to be valid coinevo wallets if they are able to have been rebooted.
 				}
 			}
 			if (result != none) { // i.e. on error but shouldExitOnLoginError != true
@@ -568,10 +568,10 @@ optional<string/*err_str*/> Object::SetValuesAndSave(
 //
 // Imperatives - Local tx CRUD
 void Object::_manuallyInsertTransactionRecord(
-	const HostedMonero::HistoricalTxRecord &transaction
+	const HostedCoinevo::HistoricalTxRecord &transaction
 ) {
 	if (_transactions == none) {
-		_transactions = std::vector<HostedMonero::HistoricalTxRecord>();
+		_transactions = std::vector<HostedCoinevo::HistoricalTxRecord>();
 	}
 	(*_transactions).push_back(transaction); // pushing a copy
 	optional<string> err_str = saveToDisk();
@@ -590,35 +590,35 @@ void Object::_manuallyInsertTransactionRecord(
 ////
 //// Runtime (Booted) - Imperatives - Sending Funds
 //func sendFunds(
-//			   enteredAddressValue: MoneroAddress?, // currency-ready wallet address, but not an OpenAlias address (resolve before calling)
-//			   resolvedAddress: MoneroAddress?,
-//			   manuallyEnteredPaymentID: MoneroPaymentID?,
-//			   resolvedPaymentID: MoneroPaymentID?,
+//			   enteredAddressValue: CoinevoAddress?, // currency-ready wallet address, but not an OpenAlias address (resolve before calling)
+//			   resolvedAddress: CoinevoAddress?,
+//			   manuallyEnteredPaymentID: CoinevoPaymentID?,
+//			   resolvedPaymentID: CoinevoPaymentID?,
 //			   hasPickedAContact: Bool,
 //			   resolvedAddress_fieldIsVisible: Bool,
 //			   manuallyEnteredPaymentID_fieldIsVisible: Bool,
 //			   resolvedPaymentID_fieldIsVisible: Bool,
 //			   //
-//			   contact_payment_id: MoneroPaymentID?,
+//			   contact_payment_id: CoinevoPaymentID?,
 //			   cached_OAResolved_address: String?,
 //			   contact_hasOpenAliasAddress: Bool?,
 //			   contact_address: String?,
 //			   //
-//			   raw_amount_string: String?, // human-understandable number, e.g. input 0.5 for 0.5 XMR
+//			   raw_amount_string: String?, // human-understandable number, e.g. input 0.5 for 0.5 EVO
 //			   isSweeping: Bool, // when true, amount will be ignored
-//			   simple_priority: MoneroTransferSimplifiedPriority,
+//			   simple_priority: CoinevoTransferSimplifiedPriority,
 //			   //
 //			   didUpdateProcessStep_fn: @escaping ((_ msg: String) -> Void),
 //			   success_fn: @escaping (
-//									  _ sentTo_address: MoneroAddress,
-//									  _ isXMRAddressIntegrated: Bool,
-//									  _ integratedAddressPIDForDisplay_orNil: MoneroPaymentID?,
-//									  _ final_sentAmountWithoutFee: MoneroAmount,
-//									  _ sentPaymentID_orNil: MoneroPaymentID?,
-//									  _ tx_hash: MoneroTransactionHash,
-//									  _ tx_fee: MoneroAmount,
-//									  _ tx_key: MoneroTransactionSecKey,
-//									  _ mockedTransaction: MoneroHistoricalTransactionRecord
+//									  _ sentTo_address: CoinevoAddress,
+//									  _ isEVOAddressIntegrated: Bool,
+//									  _ integratedAddressPIDForDisplay_orNil: CoinevoPaymentID?,
+//									  _ final_sentAmountWithoutFee: CoinevoAmount,
+//									  _ sentPaymentID_orNil: CoinevoPaymentID?,
+//									  _ tx_hash: CoinevoTransactionHash,
+//									  _ tx_fee: CoinevoAmount,
+//									  _ tx_key: CoinevoTransactionSecKey,
+//									  _ mockedTransaction: CoinevoHistoricalTransactionRecord
 //									  ) -> Void,
 //			   canceled_fn: @escaping () -> Void,
 //			   failWithErr_fn: @escaping (
@@ -638,8 +638,8 @@ void Object::_manuallyInsertTransactionRecord(
 //	let statusMessage_prefix = isSweeping
 //	? NSLocalizedString("Sending wallet balance…", comment: "")
 //	: String(
-//			 format: NSLocalizedString("Sending %@ XMR…", comment: "Sending {amount} XMR…"),
-//			 FormattedString(fromMoneroAmount: MoneroAmount.new( // converting it from string back to string so as to get the locale-specific separator character
+//			 format: NSLocalizedString("Sending %@ EVO…", comment: "Sending {amount} EVO…"),
+//			 FormattedString(fromCoinevoAmount: CoinevoAmount.new( // converting it from string back to string so as to get the locale-specific separator character
 //																withMoneyAmountDoubleString: raw_amount_string!
 //																))
 //			 )
@@ -690,7 +690,7 @@ void Object::_manuallyInsertTransactionRecord(
 //		} catch let e {
 //			fatalError("req_params_json_string parse error … \(e)")
 //		}
-//		thisSelf._current_sendFunds_request = HostedMonero.APIClient.shared.UnspentOuts(
+//		thisSelf._current_sendFunds_request = HostedCoinevo.APIClient.shared.UnspentOuts(
 //																						parameters: parameters,
 //																						{ [weak thisSelf] (err_str, response_data) in
 //																							guard let thisThisSelf = thisSelf else {
@@ -715,7 +715,7 @@ void Object::_manuallyInsertTransactionRecord(
 //		} catch let e {
 //			fatalError("req_params_json_string parse error … \(e)")
 //		}
-//		thisSelf._current_sendFunds_request = HostedMonero.APIClient.shared.RandomOuts(
+//		thisSelf._current_sendFunds_request = HostedCoinevo.APIClient.shared.RandomOuts(
 //																					   parameters: parameters,
 //																					   { [weak thisSelf] (err_str, response_data) in
 //																						   guard let thisThisSelf = thisSelf else {
@@ -740,7 +740,7 @@ void Object::_manuallyInsertTransactionRecord(
 //		} catch let e {
 //			fatalError("req_params_json_string parse error … \(e)")
 //		}
-//		thisSelf._current_sendFunds_request = HostedMonero.APIClient.shared.SubmitSerializedSignedTransaction(
+//		thisSelf._current_sendFunds_request = HostedCoinevo.APIClient.shared.SubmitSerializedSignedTransaction(
 //																											  parameters: parameters,
 //																											  { [weak thisSelf] (err_str, response_data) in
 //																												  guard let thisThisSelf = thisSelf else {
@@ -763,11 +763,11 @@ void Object::_manuallyInsertTransactionRecord(
 //		} else if code == 12 { // createTransactionCode_balancesProvided
 //			if optl_createTx_errCode == 90 { // needMoreMoneyThanFound
 //				errStr = String(format:
-//								NSLocalizedString("Spendable balance too low. Have %@ %@; need %@ %@.", comment: "Spendable balance too low. Have {amount} {XMR}; need {amount} {XMR}."),
-//								FormattedString(fromMoneroAmount: MoneroAmount("\(optl__spendable_balance)")!),
-//								MoneroConstants.currency_symbol,
-//								FormattedString(fromMoneroAmount: MoneroAmount("\(optl__required_balance)")!),
-//								MoneroConstants.currency_symbol
+//								NSLocalizedString("Spendable balance too low. Have %@ %@; need %@ %@.", comment: "Spendable balance too low. Have {amount} {EVO}; need {amount} {EVO}."),
+//								FormattedString(fromCoinevoAmount: CoinevoAmount("\(optl__spendable_balance)")!),
+//								CoinevoConstants.currency_symbol,
+//								FormattedString(fromCoinevoAmount: CoinevoAmount("\(optl__required_balance)")!),
+//								CoinevoConstants.currency_symbol
 //								);
 //			} else {
 //				errStr = Wallet.createTxErrCodeMessage_byEnumVal[optl_createTx_errCode]!
@@ -779,25 +779,25 @@ void Object::_manuallyInsertTransactionRecord(
 //		}
 //		failWithErr_fn(errStr!)
 //		thisSelf.submitter = nil // free
-//	}, success_fn: { [weak self] (used_fee, total_sent, mixin, optl__final_payment_id, signed_serialized_tx_string, tx_hash_string, tx_key_string, tx_pub_key_string, target_address, final_total_wo_fee, isXMRAddressIntegrated, optl__integratedAddressPIDForDisplay) in
+//	}, success_fn: { [weak self] (used_fee, total_sent, mixin, optl__final_payment_id, signed_serialized_tx_string, tx_hash_string, tx_key_string, tx_pub_key_string, target_address, final_total_wo_fee, isEVOAddressIntegrated, optl__integratedAddressPIDForDisplay) in
 //		guard let thisSelf = self else {
 //			return
 //		}
 //		thisSelf.__unlock_sending()
 //		//
-//		var outgoingAmountForDisplay = MoneroAmount.init("\(final_total_wo_fee + used_fee)")!
+//		var outgoingAmountForDisplay = CoinevoAmount.init("\(final_total_wo_fee + used_fee)")!
 //		outgoingAmountForDisplay.sign = .minus // make negative as it's outgoing
 //		//
-//		let mockedTransaction = MoneroHistoricalTransactionRecord(
+//		let mockedTransaction = CoinevoHistoricalTransactionRecord(
 //																  amount: outgoingAmountForDisplay,
-//																  totalSent: MoneroAmount.init("\(final_total_wo_fee + used_fee)")!,
-//																  totalReceived: MoneroAmount("0"),
-//																  approxFloatAmount: DoubleFromMoneroAmount(moneroAmount: outgoingAmountForDisplay),
+//																  totalSent: CoinevoAmount.init("\(final_total_wo_fee + used_fee)")!,
+//																  totalReceived: CoinevoAmount("0"),
+//																  approxFloatAmount: DoubleFromCoinevoAmount(coinevoAmount: outgoingAmountForDisplay),
 //																  spent_outputs: nil, // TODO: is this ok?
 //																  timestamp: Date(), // faking this
 //																  hash: tx_hash_string,
-//																  paymentId: optl__final_payment_id ?? optl__integratedAddressPIDForDisplay, // transaction.paymentId will be nil for integrated addresses but we show it here anyway and, in the situation where they used a std xmr addr and a short pid, an int addr would get fabricated anyway, leaving sentWith_paymentID nil even though user is expecting a pid - so we want to make sure it gets saved in either case
-//																  mixin: MyMoneroCore.fixedMixin,
+//																  paymentId: optl__final_payment_id ?? optl__integratedAddressPIDForDisplay, // transaction.paymentId will be nil for integrated addresses but we show it here anyway and, in the situation where they used a std evo addr and a short pid, an int addr would get fabricated anyway, leaving sentWith_paymentID nil even though user is expecting a pid - so we want to make sure it gets saved in either case
+//																  mixin: MyCoinevoCore.fixedMixin,
 //																  //
 //																  mempool: true, // is this correct?
 //																  unlock_time: 0,
@@ -814,18 +814,18 @@ void Object::_manuallyInsertTransactionRecord(
 //																  isJustSentTransientTransactionRecord: true,
 //																  //
 //																  tx_key: tx_key_string,
-//																  tx_fee: MoneroAmount.init("\(used_fee)")!,
+//																  tx_fee: CoinevoAmount.init("\(used_fee)")!,
 //																  to_address: target_address
 //																  //				contact: hasPickedAContact ? self.pickedContact : null, // TODO?
 //																  )
 //		success_fn(
 //				   target_address,
-//				   isXMRAddressIntegrated,
+//				   isEVOAddressIntegrated,
 //				   optl__integratedAddressPIDForDisplay,
-//				   MoneroAmount.init("\(final_total_wo_fee)")!,
+//				   CoinevoAmount.init("\(final_total_wo_fee)")!,
 //				   optl__final_payment_id,
 //				   tx_hash_string,
-//				   MoneroAmount.init("\(used_fee)")!,
+//				   CoinevoAmount.init("\(used_fee)")!,
 //				   tx_key_string,
 //				   mockedTransaction
 //				   )
@@ -880,16 +880,16 @@ void Object::__unlock_sending()
 //
 // HostPollingController - Delegation / Protocol
 void Object::_HostPollingController_didFetch_addressInfo(
-	const HostedMonero::ParsedResult_AddressInfo &parsedResult
+	const HostedCoinevo::ParsedResult_AddressInfo &parsedResult
 ) {
-	auto xmrToCcyRatesByCcy = parsedResult.xmrToCcyRatesByCcy; // copy
+	auto evoToCcyRatesByCcy = parsedResult.evoToCcyRatesByCcy; // copy
 	std::shared_ptr<Object> shared_this = shared_from_this();
 	std::weak_ptr<Object> weak_this = shared_this;
 	_dispatch_ptr->async([
-		weak_this, xmrToCcyRatesByCcy
+		weak_this, evoToCcyRatesByCcy
 	] { // just to let wallet stuff finish first
 		if (auto inner_spt = weak_this.lock()) {
-			inner_spt->_ccyConversionRatesController->set_xmrToCcyRatesByCcy(xmrToCcyRatesByCcy);
+			inner_spt->_ccyConversionRatesController->set_evoToCcyRatesByCcy(evoToCcyRatesByCcy);
 		}
 	});
 	bool didActuallyChange_accountBalance = (_totalReceived == none || parsedResult.totalReceived != *_totalReceived)
@@ -942,7 +942,7 @@ void Object::_HostPollingController_didFetch_addressInfo(
 	}
 }
 void Object::_HostPollingController_didFetch_addressTransactions(
-	const HostedMonero::ParsedResult_AddressTransactions &parsedResult
+	const HostedCoinevo::ParsedResult_AddressTransactions &parsedResult
 ) {
 	bool didActuallyChange_heights = (_account_scanned_height == none || *_account_scanned_height != parsedResult.account_scanned_height)
 		|| (_account_scanned_block_height == none || *_account_scanned_block_height != parsedResult.account_scanned_block_height)
@@ -959,14 +959,14 @@ void Object::_HostPollingController_didFetch_addressTransactions(
 	// We will construct the txs from the incoming txs here as follows.
 	// Doing this allows us to selectively preserve already-cached info.
 	size_t numberOfTransactionsAdded = 0; // to be finalized…
-	//		var newTransactions = [MoneroHistoricalTransactionRecord]()
-	std::vector<HostedMonero::HistoricalTxRecord> existing_transactions; // to be finalized…
+	//		var newTransactions = [CoinevoHistoricalTransactionRecord]()
+	std::vector<HostedCoinevo::HistoricalTxRecord> existing_transactions; // to be finalized…
 	if (_transactions != none) {
 		existing_transactions = std::move(*_transactions); // copy! (or rather, a move … because we're just about to reconstruct it)
 	}
 	//
 	// Always make sure to construct new array so we have the old set
-	std::unordered_map<string, HostedMonero::HistoricalTxRecord> txs_by_hash;
+	std::unordered_map<string, HostedCoinevo::HistoricalTxRecord> txs_by_hash;
 	//
 	//
 	// TODO: optimize this by using raw ptrs or smart ptrs
@@ -981,12 +981,12 @@ void Object::_HostPollingController_didFetch_addressTransactions(
 		// in JS here we delete the 'id' field but we don't have it in Swift - in JS, the comment is: "because this field changes while sending funds, even though hash stays the same, and because we don't want `id` messing with our ability to diff. so we're not even going to try to store this"
 		std::unordered_map<
 			string,
-			HostedMonero::HistoricalTxRecord
+			HostedCoinevo::HistoricalTxRecord
 		>::const_iterator existing_tx__it = txs_by_hash.find((*incoming_tx__it).hash);
 		bool isNewTransaction = existing_tx__it == txs_by_hash.end();
 		// ^- If any existing tx is also in incoming txs, this will cause
 		// the (correct) deletion of e.g. isJustSentTransaction=true.
-		HostedMonero::HistoricalTxRecord final_incoming_tx = *incoming_tx__it; // a mutable copy
+		HostedCoinevo::HistoricalTxRecord final_incoming_tx = *incoming_tx__it; // a mutable copy
 		if (isNewTransaction) { // This is generally now only going to be hit when new incoming txs happen - or outgoing txs done on other logins
 			didActuallyChange_transactions = true;
 			numberOfTransactionsAdded += 1;
@@ -1031,11 +1031,11 @@ void Object::_HostPollingController_didFetch_addressTransactions(
 //		}
 	}
 	//
-	std::vector<HostedMonero::HistoricalTxRecord> finalized_transactions;
+	std::vector<HostedCoinevo::HistoricalTxRecord> finalized_transactions;
 	for (auto it = txs_by_hash.begin(); it != txs_by_hash.end(); it++) {
 		finalized_transactions.push_back(it->second); // TODO: this is also a copy …… optimize this by using a pointer
 	}
-	sort(finalized_transactions.begin(), finalized_transactions.end(), HostedMonero::sorting_historicalTxRecords_byTimestamp_walletsList);
+	sort(finalized_transactions.begin(), finalized_transactions.end(), HostedCoinevo::sorting_historicalTxRecords_byTimestamp_walletsList);
 	//
 	_transactions = std::move(finalized_transactions);
 	//

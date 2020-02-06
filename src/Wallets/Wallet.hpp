@@ -1,8 +1,8 @@
 //
 //  Wallet.hpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -38,8 +38,8 @@
 #include <string>
 #include <unordered_map>
 #include "../Persistence/PersistableObject.hpp"
-#include "monero_wallet_utils.hpp"
-#include "../APIClient/HostedMonero.hpp"
+#include "coinevo_wallet_utils.hpp"
+#include "../APIClient/HostedCoinevo.hpp"
 #include "./Wallet_HostPollingController.hpp"
 #include "./Wallet_TxCleanupController.hpp"
 #include "../APIClient/parsing.hpp"
@@ -52,18 +52,18 @@ namespace Wallets
 	//
 	enum Currency
 	{
-		Monero = 0
+		Coinevo = 0
 	};
 	//
-	static string  _ccy_symbol_string__xmr = "xmr";
+	static string  _ccy_symbol_string__evo = "evo";
 	static inline const string &symbol_string_from(Wallets::Currency currency)
 	{
 		switch (currency) {
-			case Monero:
-				return _ccy_symbol_string__xmr;
+			case Coinevo:
+				return _ccy_symbol_string__evo;
 			default:
 				BOOST_THROW_EXCEPTION(logic_error("Unhandled Wallets::Currency"));
-				return symbol_string_from(Monero); // default … not rea
+				return symbol_string_from(Coinevo); // default … not rea
 		}
 	}
 	static inline const string &jsonRepresentation(Wallets::Currency currency)
@@ -72,20 +72,20 @@ namespace Wallets
 	}
 	static inline const Currency currencyFromJSONRepresentation(const string &str)
 	{
-		if (str == jsonRepresentation(Monero)) {
-			return Monero;
+		if (str == jsonRepresentation(Coinevo)) {
+			return Coinevo;
 		}
 		BOOST_THROW_EXCEPTION(logic_error("currencyFromJSONRepresentation: Unhandled jsonRepresentation"));
-		return Monero; // default … not rea
+		return Coinevo; // default … not rea
 	}
 	static inline string humanReadableCurrencySymbolString(Wallets::Currency currency)
 	{
 		switch (currency) {
-			case Monero:
-				return "XMR";
+			case Coinevo:
+				return "EVO";
 			default:
 				BOOST_THROW_EXCEPTION(logic_error("Unhandled Wallets::Currency"));
-				return humanReadableCurrencySymbolString(Monero); // default … not rea
+				return humanReadableCurrencySymbolString(Coinevo); // default … not rea
 		}
 	}
 }
@@ -190,7 +190,7 @@ namespace Wallets
 namespace Wallets
 {
 	using namespace std;
-	using namespace HostedMonero;
+	using namespace HostedCoinevo;
 	//
 	// Constants
 	static const CollectionName collectionName = "Wallets";
@@ -239,9 +239,9 @@ namespace Wallets
 		Object(
 			std::shared_ptr<std::string> documentsPath,
 			std::shared_ptr<const Passwords::PasswordProvider> passwordProvider,
-			optional<monero_wallet_utils::WalletDescription> ifGeneratingNewWallet_walletDescription,
+			optional<coinevo_wallet_utils::WalletDescription> ifGeneratingNewWallet_walletDescription,
 			const cryptonote::network_type nettype,
-			std::shared_ptr<HostedMonero::APIClient> apiClient,
+			std::shared_ptr<HostedCoinevo::APIClient> apiClient,
 			std::shared_ptr<Dispatch::Dispatch> dispatch_ptr,
 			std::shared_ptr<UserIdle::Controller> userIdleController,
 			std::shared_ptr<Currencies::ConversionRatesController> ccyConversionRatesController
@@ -256,7 +256,7 @@ namespace Wallets
 		_ccyConversionRatesController(ccyConversionRatesController),
 		_generatedOnInit_walletDescription(ifGeneratingNewWallet_walletDescription)
 		{
-			_currency = Wallets::Currency::Monero;
+			_currency = Wallets::Currency::Coinevo;
 			if (_generatedOnInit_walletDescription != none) {
 				_mnemonic_wordsetName = (*_generatedOnInit_walletDescription).mnemonic_language;
 			}
@@ -266,7 +266,7 @@ namespace Wallets
 			std::shared_ptr<Passwords::PasswordProvider> passwordProvider,
 			const document_persister::DocumentJSON &plaintextData,
 			const cryptonote::network_type nettype,
-			std::shared_ptr<HostedMonero::APIClient> apiClient,
+			std::shared_ptr<HostedCoinevo::APIClient> apiClient,
 			std::shared_ptr<Dispatch::Dispatch> dispatch_ptr,
 			std::shared_ptr<UserIdle::Controller> userIdleController,
 			std::shared_ptr<Currencies::ConversionRatesController> ccyConversionRatesController
@@ -718,7 +718,7 @@ namespace Wallets
 			}
 			return _keyImageCache;
 		}
-		optional<std::vector<HostedMonero::HistoricalTxRecord>> actual_noLock_transactions()
+		optional<std::vector<HostedCoinevo::HistoricalTxRecord>> actual_noLock_transactions()
 		{
 			return _transactions;
 		}
@@ -798,26 +798,26 @@ namespace Wallets
 //			return pct
 //		}
 //		//
-//		var balanceAmount: MoneroAmount {
-//			let balanceAmount = (self.totalReceived ?? MoneroAmount(0)) - (self.totalSent ?? MoneroAmount(0))
+//		var balanceAmount: CoinevoAmount {
+//			let balanceAmount = (self.totalReceived ?? CoinevoAmount(0)) - (self.totalSent ?? CoinevoAmount(0))
 //			if balanceAmount < 0 {
-//				return MoneroAmount("0")!
+//				return CoinevoAmount("0")!
 //			}
 //			return balanceAmount
 //		}
-//		var lockedBalanceAmount: MoneroAmount {
-//			return (self.lockedBalance ?? MoneroAmount(0))
+//		var lockedBalanceAmount: CoinevoAmount {
+//			return (self.lockedBalance ?? CoinevoAmount(0))
 //		}
 //		var hasLockedFunds: Bool {
 //			if self.lockedBalance == nil {
 //				return false
 //			}
-//			if self.lockedBalance == MoneroAmount(0) {
+//			if self.lockedBalance == CoinevoAmount(0) {
 //				return false
 //			}
 //			return true
 //		}
-//		var unlockedBalance: MoneroAmount {
+//		var unlockedBalance: CoinevoAmount {
 //			let lb = self.lockedBalanceAmount
 //			let b = self.balanceAmount
 //			if b < lb {
@@ -825,14 +825,14 @@ namespace Wallets
 //			}
 //			return b - lb
 //		}
-//		var new_pendingBalanceAmount: MoneroAmount {
-//			var amount = MoneroAmount(0)
-//			(self.transactions ?? [MoneroHistoricalTransactionRecord]()).forEach { (tx) in
+//		var new_pendingBalanceAmount: CoinevoAmount {
+//			var amount = CoinevoAmount(0)
+//			(self.transactions ?? [CoinevoHistoricalTransactionRecord]()).forEach { (tx) in
 //				if tx.cached__isConfirmed != true {
 //					if tx.isFailed != true /* nil -> false */{ // just filtering these out
 //						// now, adding both of these (positive) values to contribute to the total
 //						let abs_mag = (tx.totalSent - tx.totalReceived).magnitude // throwing away the sign
-//						amount += MoneroAmount(abs_mag)
+//						amount += CoinevoAmount(abs_mag)
 //					}
 //				}
 //			}
@@ -886,10 +886,10 @@ namespace Wallets
 		//
 		// HostPollingController - Delegation / Protocol
 		void _HostPollingController_didFetch_addressInfo(
-			const HostedMonero::ParsedResult_AddressInfo &parsedResult
+			const HostedCoinevo::ParsedResult_AddressInfo &parsedResult
 		);
 		void _HostPollingController_didFetch_addressTransactions(
-			const HostedMonero::ParsedResult_AddressTransactions &parsedResult
+			const HostedCoinevo::ParsedResult_AddressTransactions &parsedResult
 		);
 	private:
 		//
@@ -903,7 +903,7 @@ namespace Wallets
 		optional<bool> _login__generated_locally;
 		//
 		cryptonote::network_type _nettype;
-		std::shared_ptr<HostedMonero::APIClient> _apiClient;
+		std::shared_ptr<HostedCoinevo::APIClient> _apiClient;
 		std::shared_ptr<Dispatch::Dispatch> _dispatch_ptr;
 		std::shared_ptr<UserIdle::Controller> _userIdleController;
 		std::shared_ptr<Currencies::ConversionRatesController> _ccyConversionRatesController;
@@ -916,7 +916,7 @@ namespace Wallets
 		//
 		optional<string> _mnemonicString;
 		optional<string> _mnemonic_wordsetName;
-		optional<monero_wallet_utils::WalletDescription> _generatedOnInit_walletDescription;
+		optional<coinevo_wallet_utils::WalletDescription> _generatedOnInit_walletDescription;
 
 		optional<string> _account_seed;
 		string _view_sec_key;
@@ -936,8 +936,8 @@ namespace Wallets
 		optional<uint64_t> _transaction_height;
 		optional<uint64_t> _blockchain_height;
 		//
-		optional<std::vector<HostedMonero::SpentOutputDescription>> _spentOutputs;
-		optional<std::vector<HostedMonero::HistoricalTxRecord>> _transactions;
+		optional<std::vector<HostedCoinevo::SpentOutputDescription>> _spentOutputs;
+		optional<std::vector<HostedCoinevo::HistoricalTxRecord>> _transactions;
 		//
 		optional<time_t> _dateThatLast_fetchedAccountInfo;
 		optional<time_t> _dateThatLast_fetchedAccountTransactions;
@@ -986,7 +986,7 @@ namespace Wallets
 			std::function<void(optional<string> err_str)> fn
 		);
 		void _manuallyInsertTransactionRecord(
-			const HostedMonero::HistoricalTxRecord &transaction
+			const HostedCoinevo::HistoricalTxRecord &transaction
 		);
 		//
 		void __lock_sending();

@@ -1,8 +1,8 @@
 //
 //  WalletsListController_Base.cpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -34,9 +34,9 @@
 #include "WalletsListController_Base.hpp"
 #include <boost/foreach.hpp>
 #include "misc_log_ex.h"
-#include "../mymonero-core-cpp/src/monero_wallet_utils.hpp"
+#include "../mycoinevo-core-cpp/src/coinevo_wallet_utils.hpp"
 using namespace Wallets;
-using namespace monero_wallet_utils;
+using namespace coinevo_wallet_utils;
 //
 // Lifecycle - Init
 void ListController_Base::setup()
@@ -66,15 +66,15 @@ void ListController_Base::setup_startObserving()
 {
 	Lists::Controller::setup_startObserving();
 	//
-	connection__HostedMonero_initializedWithNewServerURL = apiClient->initializedWithNewServerURL_signal.connect(
-		std::bind(&ListController_Base::HostedMonero_initializedWithNewServerURL, this)
+	connection__HostedCoinevo_initializedWithNewServerURL = apiClient->initializedWithNewServerURL_signal.connect(
+		std::bind(&ListController_Base::HostedCoinevo_initializedWithNewServerURL, this)
 	);
 }
 void ListController_Base::stopObserving()
 {
 	Lists::Controller::stopObserving();
 	//
-	connection__HostedMonero_initializedWithNewServerURL.disconnect();
+	connection__HostedCoinevo_initializedWithNewServerURL.disconnect();
 }
 //
 // Accessors - Derived properties
@@ -96,8 +96,8 @@ void ListController_Base::CreateNewWallet_NoBootNoListAdd(
 	string localeCode,
 	std::function<void(optional<string> err, std::shared_ptr<Wallets::Object> walletInstance)> fn
 ) {
-	monero_wallet_utils::WalletDescriptionRetVals retVals;
-	bool r = monero_wallet_utils::convenience__new_wallet_with_language_code(
+	coinevo_wallet_utils::WalletDescriptionRetVals retVals;
+	bool r = coinevo_wallet_utils::convenience__new_wallet_with_language_code(
 		localeCode,
 		retVals,
 		_nettype
@@ -362,7 +362,7 @@ void ListController_Base::OnceBooted_ObtainPW_AddExtantWalletWith_AddressAndKeys
 }
 //
 // Delegation - Signals
-void ListController_Base::HostedMonero_initializedWithNewServerURL()
+void ListController_Base::HostedCoinevo_initializedWithNewServerURL()
 {
 	// 'log out' all wallets by deleting their runtime state, then reboot them
 	if (_hasBooted == false) {

@@ -1,8 +1,8 @@
 //
 //  Wallet_HostPollingController.cpp
-//  MyMonero
+//  MyCoinevo
 //
-//  Copyright (c) 2014-2019, MyMonero.com
+//  Copyright (c) 2014-2019, MyCoinevo.com
 //
 //  All rights reserved.
 //
@@ -33,7 +33,7 @@
 //
 #include "Wallet_HostPollingController.hpp"
 using namespace Wallets;
-#include "../APIClient/HostedMonero.hpp"
+#include "../APIClient/HostedCoinevo.hpp"
 #include "misc_log_ex.h"
 #include "Wallet.hpp"
 //
@@ -160,7 +160,7 @@ void HostPollingController::_fetch_addressInfo()
 		wallet_spt->spend_sec_key(),
 		[weak_this] (
 			optional<string> err_str,
-			optional<HostedMonero::ParsedResult_AddressInfo> result
+			optional<HostedCoinevo::ParsedResult_AddressInfo> result
 		) {
 			if (auto inner_spt = weak_this.lock()) {
 				if (inner_spt->_requestHandleFor_addressInfo == nullptr) {
@@ -208,7 +208,7 @@ void HostPollingController::_fetch_addressTransactions()
 		wallet_spt->spend_sec_key(),
 		[weak_this] (
 			optional<string> err_str,
-			optional<HostedMonero::ParsedResult_AddressTransactions> result
+			optional<HostedCoinevo::ParsedResult_AddressTransactions> result
 		) {
 			if (auto inner_spt = weak_this.lock()) {
 				if (inner_spt->_requestHandleFor_addressTransactions == nullptr) {
